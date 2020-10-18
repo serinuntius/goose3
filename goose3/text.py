@@ -27,7 +27,6 @@ import string
 from goose3.utils import FileHelper
 from goose3.utils.encoding import (smart_unicode, smart_str, DjangoUnicodeDecodeError)
 
-
 SPACE_SYMBOLS = re.compile(r'[\s\xa0\t]')
 TABSSPACE = re.compile(r'[\s\t]+')
 
@@ -163,6 +162,7 @@ class StopWordsChinese(StopWords):
     """
     Chinese segmentation
     """
+
     def __init__(self, language='zh'):
         # force zh languahe code
         super(StopWordsChinese, self).__init__(language='zh')
@@ -180,6 +180,7 @@ class StopWordsArabic(StopWords):
     """
     Arabic segmentation
     """
+
     def __init__(self, language='ar'):
         # force ar languahe code
         super(StopWordsArabic, self).__init__(language='ar')
@@ -202,8 +203,40 @@ class StopWordsKorean(StopWords):
     """
     Korean segmentation
     """
+
     def __init__(self, language='ko'):
         super(StopWordsKorean, self).__init__(language='ko')
+
+    def get_stopword_count(self, content):
+        if not content:
+            return WordStats()
+        stats = WordStats()
+        stripped_input = self.remove_punctuation(content)
+        candidate_words = self.candidate_words(stripped_input)
+        overlapping_stopwords = []
+        i = 0
+        for _ in candidate_words:
+            i += 1
+            for stop_word in self._stop_words:
+                overlapping_stopwords.append(stop_word)
+
+        stats.set_word_count(i)
+        stats.set_stopword_count(len(overlapping_stopwords))
+        stats.set_stop_words(overlapping_stopwords)
+        return stats
+
+
+class StopWordsJapanese(StopWords):
+    """
+    Japanese segmentation
+    """
+
+    def __init__(self, language='ja'):
+        super(StopWordsJapanese, self).__init__(language='ja')
+
+    @staticmethod
+    def remove_punctuation(content):
+        return content
 
     def get_stopword_count(self, content):
         if not content:
